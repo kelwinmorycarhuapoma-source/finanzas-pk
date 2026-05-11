@@ -590,4 +590,104 @@ async function delTie(id) {
   if (!confirm('¿Eliminar esta tienda?')) return;
   try { await API.delTienda(id); PREC.cache.tiendas = null; U.toast('🗑 Eliminada'); renderCatalogoTab(); }
   catch(e) { U.toast('❌ ' + e.message); }
+}// ════════════════════════════════════════════════════════════════
+//  AGREGAR ESTO AL FINAL DE precios.js (después de delTie)
+//  Balance P/K — Liquidación mensual entre Paola y Kelwin
+// ════════════════════════════════════════════════════════════════
+
+async function renderBalancePK() {
+  const sc = document.getElementById('screen');
+  sc.innerHTML = loadingHtml('Calculando balance...');
+  let d;
+  try { d = await API.balancePK(ST.mes, ST.anio); }
+  catch(e) { sc.innerHTML = errHtml(e); return; }
+
+  sc.innerHTML = `
+  <div class="ph">
+    <div class="page-title">Balance Paola & Kelwin</div>
+    <div class="page-sub">${U.mesLbl(ST.mes,ST.anio)} · Gastos compartidos</div>
+  </div>
+
+  <div class="card" style="margin-bottom:14px;${d.hayDeuda?'border:2px solid var(--danger)':''}">
+    <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:16px;padding:8px 0">
+
+      <div style="text-align:center;flex:1;min-width:110px">
+        <div style="font-size:36px;margin-bottom:6px">👩</div>
+        <div style="font-size:14px;font-weight:700">Paola</div>
+        <div style="font-size:11px;color:var(--text2);margin-bottom:4px">Pagó en gastos compartidos</div>
+        <div style="font-size:22px;font-weight:800;color:${d.pagoPaola>=d.cadaUnoDebePagar?'var(--success)':'var(--danger)'}">
+          ${U.fmtI(d.pagoPaola)}
+        </div>
+      </div>
+
+      <div style="text-align:center;padding:16px 20px;background:${d.hayDeuda?'var(--danger-bg)':'var(--success-bg)'};border-radius:var(--r-lg);flex-shrink:0">
+        ${d.hayDeuda ? `
+          <div style="font-size:28px;font-weight:800;color:var(--danger)">${U.fmtI(d.diferencia)}</div>
+          <div style="font-size:12px;font-weight:700;color:var(--danger);margin-top:4px">${d.deudor} → ${d.acreedor}</div>
+          <div style="font-size:11px;color:var(--danger)">debe transferir</div>
+        ` : `
+          <div style="font-size:32px">✅</div>
+          <div style="font-size:13px;font-weight:700;color:var(--success);margin-top:4px">Están al día</div>
+        `}
+      </div>
+
+      <div style="text-align:center;flex:1;min-width:110px">
+        <div style="font-size:36px;margin-bottom:6px">👨</div>
+        <div style="font-size:14px;font-weight:700">Kelwin</div>
+        <div style="font-size:11px;color:var(--text2);margin-bottom:4px">Pagó en gastos compartidos</div>
+        <div style="font-size:22px;font-weight:800;color:${d.pagoKelwin>=d.cadaUnoDebePagar?'var(--success)':'var(--danger)'}">
+          ${U.fmtI(d.pagoKelwin)}
+        </div>
+      </div>
+    </div>
+
+    <div style="display:flex;justify-content:space-between;font-size:12px;color:var(--text2);padding-top:12px;margin-top:12px;border-top:1px solid var(--border)">
+      <span>Total compartido: <strong style="color:var(--text)">${U.fmtI(d.totalCompartido)}</strong></span>
+      <span>Cada uno debería pagar: <strong style="color:var(--text)">${U.fmtI(d.cadaUnoDebePagar)}</strong></span>
+    </div>
+  </div>
+
+  ${d.hayDeuda ? `
+  <div class="ins ins-b" style="margin-bottom:14px">
+    <div class="ins-ico">💡</div>
+    <div>
+      <div class="ins-title">Cómo liquidar este mes</div>
+      <div class="ins-text">
+        <strong>${d.deudor}</strong> transfiere <strong>${U.fmtI(d.diferencia)}</strong>
+        a <strong>${d.acreedor}</strong> por Yape o Plin para quedar a mano.
+      </div>
+    </div>
+  </div>` : ''}
+
+  <div class="card">
+    <div class="card-title">Detalle gastos compartidos · ${d.detalles.length} transacciones</div>
+    ${d.detalles.length ? `
+    <table class="tx-tbl">
+      <thead><tr>
+        <th>Fecha</th><th>Descripción</th><th>Monto</th><th>Pagó</th>
+      </tr></thead>
+      <tbody>
+      ${d.detalles.map(r => `
+        <tr>
+          <td style="font-size:12px;white-space:nowrap">${U.fecha(r.fecha)}</td>
+          <td>
+            <div class="tx-name">${r.descripcion}</div>
+            <div class="tx-meta">${r.categoria}</div>
+          </td>
+          <td class="neg" style="font-weight:700">${U.fmtI(r.monto)}</td>
+          <td>
+            <span class="badge ${r.quien_pago.toLowerCase().includes('paola')?'b-p':'b-b'}">
+              ${r.quien_pago||'Ambos'}
+            </span>
+          </td>
+        </tr>`).join('')}
+      </tbody>
+    </table>` : `
+    <div class="empty">
+      <div class="empty-ico">📋</div>
+      <div class="empty-txt">Sin gastos compartidos este mes.<br>
+      Las transacciones compartidas deben tener<br>
+      <strong>Responsable = "Paola y Kelwin"</strong></div>
+    </div>`}
+  </div>`;
 }
