@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="theme-color" content="#0f172a">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <title>FinanzasPK v4 💰</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<!-- ══ LOGIN ════════════════════════════════════════════════ -->
+<div id="login" class="login-wrap">
+  <div class="login-card">
+    <div class="login-brand">
+      <div class="login-logo">💰</div>
+      <h1>FinanzasPK</h1>
+      <p>Gestión financiera inteligente · v4</p>
+    </div>
+    <div class="form-g">
+      <label class="fl">Contraseña de acceso</label>
+      <input type="password" id="pwd" class="fi" placeholder="••••••••" autofocus>
+    </div>
+    <button class="btn btn-p w100" onclick="A.login()">Ingresar →</button>
+    <p id="login-err" class="err-msg" style="display:none">❌ Contraseña incorrecta</p>
+  </div>
+</div>
+
+<!-- ══ APP SHELL ════════════════════════════════════════════ -->
+<div id="app" class="app-shell" style="display:none">
+
+  <div id="sb-ov" class="sb-overlay" onclick="A.closeSb()"></div>
+
+  <!-- SIDEBAR -->
+  <aside id="sidebar" class="sidebar">
+    <div class="sb-head">
+      <div class="sb-logo">💰</div>
+      <div>
+        <div class="sb-brand">FinanzasPK</div>
+        <div class="sb-user" id="sb-user">—</div>
+      </div>
+    </div>
+
+    <div class="month-nav">
+      <button class="mo-btn" onclick="A.prevMes()">‹</button>
+      <span id="mo-lbl" class="mo-lbl"></span>
+      <button class="mo-btn" onclick="A.nextMes()">›</button>
+    </div>
+
+    <nav class="sb-nav">
+      <!-- PRINCIPAL -->
+      <button class="ni" data-s="dashboard"   onclick="A.go('dashboard',this)"><span>🏠</span>Dashboard</button>
+      <button class="ni" data-s="txs"         onclick="A.go('txs',this)"><span>📋</span>Transacciones</button>
+      <button class="ni" data-s="analytics"   onclick="A.go('analytics',this)"><span>📊</span>Análisis</button>
+      <button class="ni" data-s="presupuesto" onclick="A.go('presupuesto',this)"><span>📅</span>Presupuesto</button>
+      <button class="ni" data-s="proyeccion"  onclick="A.go('proyeccion',this)"><span>📈</span>Proyección</button>
+
+      <!-- FINANZAS -->
+      <div class="sb-sep">Finanzas</div>
+      <button class="ni" data-s="deudas"      onclick="A.go('deudas',this)"><span>💳</span>Deudas</button>
+      <button class="ni" data-s="metas"       onclick="A.go('metas',this)"><span>🎯</span>Metas</button>
+      <button class="ni" data-s="junta"       onclick="A.go('junta',this)"><span>🤝</span>Junta</button>
+      <button class="ni" data-s="cobrar"      onclick="A.go('cobrar',this)"><span>🔄</span>Por Cobrar</button>
+      <button class="ni" data-s="balance"     onclick="A.go('balance',this)"><span>⚖️</span>Balance P&amp;K</button>
+
+      <!-- COMPRAS -->
+      <div class="sb-sep">Compras inteligentes</div>
+      <button class="ni" data-s="precios"     onclick="A.go('precios',this)"><span>🏷️</span>Comparador de Precios</button>
+
+      <!-- SISTEMA -->
+      <div class="sb-sep">Sistema</div>
+      <button class="ni" data-s="settings"    onclick="A.go('settings',this)"><span>⚙️</span>Configuración</button>
+    </nav>
+
+    <button class="sb-logout" onclick="A.logout()">← Cerrar sesión</button>
+  </aside>
+
+  <!-- MAIN CONTENT -->
+  <div class="main-wrap">
+    <header class="mob-hdr">
+      <button class="hbg" onclick="A.toggleSb()">☰</button>
+      <span class="mob-title" id="mob-title">FinanzasPK</span>
+      <div class="mob-mo" onclick="A.prevMes()" id="mob-mo"></div>
+    </header>
+
+    <div id="screen" class="screen-area"></div>
+  </div>
+
+  <!-- BOTTOM NAV MÓVIL (6 botones: los más usados) -->
+  <nav class="bot-nav">
+    <button class="bn" data-s="dashboard"  onclick="A.go('dashboard',this)"><span>🏠</span>Inicio</button>
+    <button class="bn" data-s="txs"        onclick="A.go('txs',this)"><span>📋</span>Gastos</button>
+    <button class="bn add-fab"             onclick="A.openTxModal(null)"><span>+</span>Nuevo</button>
+    <button class="bn" data-s="precios"    onclick="A.go('precios',this)"><span>🏷️</span>Precios</button>
+    <button class="bn" data-s="analytics"  onclick="A.go('analytics',this)"><span>📊</span>Análisis</button>
+  </nav>
+
+</div><!-- /app -->
+
+<!-- ══ MODAL ════════════════════════════════════════════════ -->
+<div id="modal-bg" class="modal-bg" onclick="A.closeModal(event)">
+  <div id="modal" class="modal">
+    <div class="modal-hdr">
+      <h3 id="modal-ttl"></h3>
+      <button class="modal-x" onclick="A.closeModal()">✕</button>
+    </div>
+    <div id="modal-body" class="modal-body"></div>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div id="toast" class="toast"></div>
+
+<!-- ══ SCRIPTS ═══════════════════════════════════════════════ -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<script src="js/config.js"></script>
+<script src="js/api.js"></script>
+<script src="js/utils.js"></script>
+<script src="js/app.js"></script>
+<script src="js/precios.js"></script>  <!-- Módulo Precios + Balance P/K -->
+
+</body>
+</html>
