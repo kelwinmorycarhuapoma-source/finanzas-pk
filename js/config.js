@@ -9,7 +9,7 @@
 
 
 const CFG = {
-  API_URL:  'https://script.google.com/macros/s/AKfycbyy-TQlTVk0ky0xWz_NAMpeyVV12-Q1seCAr8L0dUIwwsMSMR7Yce0xseqWflwSixb-/exec',
+  API_URL:  'https://script.google.com/macros/s/AKfycbz8wlfPF2BZNLHLdT9n-GyY1dEc7imxjuMJYkTzehz2LfTWPVK-G0ya9itWxFiySgrh/exec',
   API_KEY:  'fpk_2024_secure',
   APP_PASS: 'PaolaKelwin2024',
   NOMBRE:   'Paola & Kelwin',
