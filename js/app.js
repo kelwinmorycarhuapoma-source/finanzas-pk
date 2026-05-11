@@ -401,7 +401,7 @@ async function submitTx(editId) {
     if(editId){await API.updTx(editId,data);U.toast('✅ Actualizada');}
     else{await API.addTx(data);U.toast('✅ Registrada');}
     A.closeModal();
-    if(ST.screen==='txs') renderTxs(); else if(ST.screen==='dashboard') renderDash();
+    A.go(ST.screen); // refresca la pantalla actual siempre
   } catch(e){U.toast('❌ '+e.message);if(btn){btn.disabled=false;btn.textContent=editId?'💾 Actualizar':'+ Registrar';}}
 }
 
@@ -1306,83 +1306,7 @@ function errHtml(e){
     <button class="btn btn-g btn-sm" style="margin-top:12px" onclick="A.go('${ST.screen}')">↻ Reintentar</button></div>`;
 }
 function nodata(){ return '<div class="empty" style="padding:20px"><div class="empty-txt">Sin datos</div></div>'; }
-async function renderBalancePK() {
-  const sc = document.getElementById('screen');
-  sc.innerHTML = loadingHtml('Calculando balance...');
-  let d;
-  try { d = await API.balancePK(ST.mes, ST.anio); }
-  catch(e) { sc.innerHTML = errHtml(e); return; }
 
-  const deudorColor  = 'var(--danger)';
-  const neutralColor = 'var(--success)';
-
-  sc.innerHTML = `
-  <div class="ph">
-    <div class="ph-row">
-      <div>
-        <div class="page-title">⚖️ Balance Paola & Kelwin</div>
-        <div class="page-sub">${U.MESES[ST.mes-1]} ${ST.anio} · Gastos compartidos</div>
-      </div>
-    </div>
-  </div>
-
-  <!-- Resumen -->
-  <div class="kpis" style="margin-bottom:14px">
-    <div class="kpi kpi-b">
-      <div class="kpi-lbl">Pagó Paola</div>
-      <div class="kpi-val">${U.fmtI(d.pagoPaola)}</div>
-      <div class="kpi-sub">en gastos compartidos</div>
-    </div>
-    <div class="kpi kpi-b">
-      <div class="kpi-lbl">Pagó Kelwin</div>
-      <div class="kpi-val">${U.fmtI(d.pagoKelwin)}</div>
-      <div class="kpi-sub">en gastos compartidos</div>
-    </div>
-    <div class="kpi kpi-a">
-      <div class="kpi-lbl">Total compartido</div>
-      <div class="kpi-val">${U.fmtI(d.totalCompartido)}</div>
-      <div class="kpi-sub">cada uno debería pagar ${U.fmtI(d.cadaUnoDebePagar)}</div>
-    </div>
-  </div>
-
-  <!-- Resultado -->
-  ${d.hayDeuda ? `
-  <div class="card" style="border:2px solid ${deudorColor};margin-bottom:14px;text-align:center;padding:24px">
-    <div style="font-size:40px;margin-bottom:8px">💸</div>
-    <div style="font-size:16px;font-weight:700;color:${deudorColor}">${d.deudor} le debe a ${d.acreedor}</div>
-    <div style="font-size:36px;font-weight:800;color:${deudorColor};margin:8px 0">${U.fmtI(d.diferencia)}</div>
-    <div style="font-size:13px;color:var(--text2)">para quedar 50/50 este mes</div>
-  </div>` : `
-  <div class="card" style="border:2px solid ${neutralColor};margin-bottom:14px;text-align:center;padding:24px">
-    <div style="font-size:40px;margin-bottom:8px">✅</div>
-    <div style="font-size:16px;font-weight:700;color:${neutralColor}">¡Están equilibrados!</div>
-    <div style="font-size:13px;color:var(--text2);margin-top:6px">Los gastos compartidos están prácticamente al 50/50</div>
-  </div>`}
-
-  <!-- Detalle de transacciones compartidas -->
-  ${d.detalles.length ? `
-  <div class="card">
-    <div class="card-title">Detalle de gastos compartidos (${d.detalles.length})</div>
-    <table class="tx-tbl">
-      <thead><tr><th>Fecha</th><th>Descripción</th><th>Categoría</th><th>Monto</th><th>Pagó</th></tr></thead>
-      <tbody>
-        ${d.detalles.map(t => `
-        <tr>
-          <td style="font-size:12px;white-space:nowrap">${U.fecha(t.fecha)}</td>
-          <td style="font-weight:600">${t.descripcion}</td>
-          <td style="color:var(--text2)">${t.categoria}</td>
-          <td style="font-weight:700">${U.fmtI(t.monto)}</td>
-          <td><span class="badge ${t.quien_pago.toLowerCase().includes('paola')?'b-p':'b-b'}">${t.quien_pago||'—'}</span></td>
-        </tr>`).join('')}
-      </tbody>
-    </table>
-  </div>` : `
-  <div class="empty">
-    <div class="empty-ico">🤝</div>
-    <div class="empty-txt">Sin gastos compartidos este mes.<br>
-    Registra transacciones con Responsable "Paola y Kelwin" para verlas aquí.</div>
-  </div>`}`;
-}
 // ════════════════════════════════════════════════════
 //  INICIO
 // ════════════════════════════════════════════════════
