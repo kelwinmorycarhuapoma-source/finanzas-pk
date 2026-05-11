@@ -4,6 +4,7 @@ const API = {
   async get(p) {
     const u = new URL(CFG.API_URL);
     u.searchParams.set('key', CFG.API_KEY);
+    u.searchParams.set('_ts', Date.now()); // evita caché de GAS
     Object.entries(p).forEach(([k, v]) => { if (v != null && v !== '') u.searchParams.set(k, v); });
     const r = await fetch(u.toString());
     const j = await r.json();
@@ -12,17 +13,17 @@ const API = {
   },
 
   async post(b) {
-  // Enviamos key por separado y _data como JSON encodeado
-  // para evitar preflight CORS en Chrome Android
-  const u = new URL(CFG.API_URL);
-  u.searchParams.set('key', CFG.API_KEY);
-  u.searchParams.set('_method', 'post');
-  u.searchParams.set('_data', JSON.stringify(b));
-  const r = await fetch(u.toString());
-  const j = await r.json();
-  if (!j.ok) throw new Error(j.error || 'Error del servidor');
-  return j.data;
-},
+    // GET con _method=post evita preflight CORS en Chrome Android
+    const u = new URL(CFG.API_URL);
+    u.searchParams.set('key', CFG.API_KEY);
+    u.searchParams.set('_method', 'post');
+    u.searchParams.set('_ts', Date.now()); // evita caché de GAS
+    u.searchParams.set('_data', JSON.stringify(b));
+    const r = await fetch(u.toString());
+    const j = await r.json();
+    if (!j.ok) throw new Error(j.error || 'Error del servidor');
+    return j.data;
+  },
 
   // ── GET ──
   dashboard:   (m, a)      => API.get({ action: 'dashboard',    mes: m, anio: a }),
