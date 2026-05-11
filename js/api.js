@@ -14,7 +14,7 @@ const API = {
   async post(b) {
     const r = await fetch(CFG.API_URL, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: { 'Content-Type': 'text/plain' },
       body: JSON.stringify({ key: CFG.API_KEY, ...b }),
     });
     const j = await r.json();
