@@ -12,16 +12,17 @@ const API = {
   },
 
   async post(b) {
-    // GET con _method=post evita preflight CORS en Chrome Android
-    const u = new URL(CFG.API_URL);
-    u.searchParams.set('key', CFG.API_KEY);
-    u.searchParams.set('_method', 'post');
-    u.searchParams.set('_data', JSON.stringify(b));
-    const r = await fetch(u.toString());
-    const j = await r.json();
-    if (!j.ok) throw new Error(j.error || 'Error del servidor');
-    return j.data;
-  },
+  // Enviamos key por separado y _data como JSON encodeado
+  // para evitar preflight CORS en Chrome Android
+  const u = new URL(CFG.API_URL);
+  u.searchParams.set('key', CFG.API_KEY);
+  u.searchParams.set('_method', 'post');
+  u.searchParams.set('_data', JSON.stringify(b));
+  const r = await fetch(u.toString());
+  const j = await r.json();
+  if (!j.ok) throw new Error(j.error || 'Error del servidor');
+  return j.data;
+},
 
   // ── GET ──
   dashboard:   (m, a)      => API.get({ action: 'dashboard',    mes: m, anio: a }),
